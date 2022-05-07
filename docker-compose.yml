@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # PHP IMAGE
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: cmfdev-app
+    platform: linux/x86_64
+    restart: always
+    working_dir: /var/www/src
+    volumes:
+      - ./src:/var/www/src
+    extra_hosts:
+          - 'host.docker.internal:host-gateway'
+    networks:
+      - appnet
+
+  # NGINX IMAGE
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: cmfdev-nginx
+    restart: always
+    working_dir: /var/www/src
+    ports:
+      - ${APP_PORT}:80
+      - 443:443
+    volumes:
+      - ./src:/var/www/src
+    depends_on:
+      - app
+      - db
+    networks:
+      - appnet
+
+  # MYSQL IMAGE
+  db:
+    image: mysql:${MYSQL_VERSION}
+    container_name: cmfdev-mysql
+    platform: linux/x86_64
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - ${DB_PORT}:3306
+    volumes:
+      - ./docker/db/mysql:/var/lib/mysql
+    networks:
+      - appnet
+
+  # PHPMyAdmin IMAGE
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: cmfdev-phpmyadmin
+    restart: always
+    ports:
+      - ${PMA_PORT}:80
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      UPLOAD_LIMIT: ${PMA_UPLOAD_LIMIT}
+      MEMORY_LIMIT: ${PMA_MEMORY_LIMIT}
+      MAX_EXECUTION_TIME: ${PMA_MAX_EXECUTION_TIME}
+    depends_on:
+      - db
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
