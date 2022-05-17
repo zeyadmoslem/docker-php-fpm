@@ -2,11 +2,11 @@ FROM php:8.1.4-fpm
 
 #FROM php:7.4-fpm
 
-LABEL maintainer="CMF Developer Team"
+LABEL maintainer="Zeyad Moslem"
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Add user and change src directory permissions
-RUN useradd -ms /bin/bash -u 1337 cmfdev
+RUN useradd -ms /bin/bash -u 1337 webapp
 RUN chmod a+rwx -R /var/www
 
 WORKDIR /var/www/src

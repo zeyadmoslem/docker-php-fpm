@@ -6,6 +6,8 @@ Included Features:
 
 - Nginx
 - MySQL
+- Redis
+- Certbot SSL 
 - PHP8.1-FPM
 - PHPMyAdmin
 - Nodejs v12, v14, v16 (including npm, yarn)
